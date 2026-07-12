@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur Pro — Primes & Frais</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f1e9d8;
+            --bg-page-alt: #eee4cf;
+            --bg-card: #fbf7ee;
+            --bg-panel: #f6efdf;
+            --bg-input: #ffffff;
+            --border-color: #e2d5b8;
+            --border-soft: #ecdfc1;
+            --text-navy: #202c47;
+            --text-body: #46402f;
+            --text-muted: #8c8168;
+            --accent-orange: #c76b3f;
+            --accent-orange-hover: #ac5731;
+            --accent-orange-soft: rgba(199, 107, 63, 0.12);
+            --accent-sage: #7c9271;
+            --accent-sage-hover: #667a5d;
+            --accent-sage-soft: rgba(124, 146, 113, 0.14);
+            --accent-gold: #c79a4b;
+            --accent-gold-hover: #ab8138;
+            --accent-navy-btn: #202c47;
+            --accent-navy-hover: #141d33;
+            --accent-terracotta: #b3543c;
+            --accent-terracotta-soft: rgba(179, 84, 60, 0.13);
+            --accent-blue: #6f8fab;
+            --accent-blue-soft: rgba(111, 143, 171, 0.14);
+            --radius-lg: 20px;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.2s ease;
+            --shadow-card: 0 24px 60px -28px rgba(32, 44, 71, 0.22), 0 2px 10px rgba(32, 44, 71, 0.05);
+            --shadow-soft: 0 8px 20px -10px rgba(32, 44, 71, 0.15);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 15% 0%, rgba(199,107,63,0.06), transparent 45%), radial-gradient(circle at 100% 20%, rgba(111,143,171,0.08), transparent 40%), var(--bg-page);
+            color: var(--text-body);
+            margin: 0;
+            padding: 0 0 70px 0;
+            min-height: 100vh;
+        }
+
+        .top-stripe {
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--text-navy) 0%, var(--accent-sage) 34%, var(--accent-orange) 67%, var(--accent-blue) 100%);
+        }
+
+        .page-wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 0 24px;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            padding: 36px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            width: 100%;
+            border: 1px solid var(--border-soft);
+            margin: 0 auto;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+        .card-header .mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--text-navy);
+            color: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        h1 {
+            color: var(--text-navy);
+            margin: 0;
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .card-header .kicker {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-orange);
+            margin-bottom: 2px;
+        }
+
+        h2 {
+            font-family: 'Fraunces', Georgia, serif;
+            color: var(--text-navy);
+            font-size: 19px;
+            font-weight: 600;
+            font-style: italic;
+            margin-top: 0;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            font-family: 'Fraunces', Georgia, serif;
+            color: var(--text-navy);
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        #authScreen.container {
+            max-width: 420px;
+            margin: 64px auto 0 auto;
+            text-align: center;
+            padding: 44px 36px;
+        }
+
+        #authScreen .lock-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            background: var(--accent-orange-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2.4s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.85; }
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            background-color: var(--bg-panel);
+            padding: 6px;
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 14px;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--border-soft);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover { color: var(--text-navy); background-color: rgba(32,44,71,0.05); }
+        .tab-btn.active { color: var(--accent-orange); background-color: var(--bg-card); box-shadow: var(--shadow-soft); }
+        .tab-btn.active .step-num { background: var(--accent-orange); color: #fff; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; padding-top: 26px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-navy); font-size: 13.5px; }
+        .input-desc { font-size: 12.5px; color: var(--text-muted); margin-top: -4px; margin-bottom: 10px; line-height: 1.5; }
+
+        input[type="text"], input[type="date"], select, textarea {
+            width: 100%; padding: 13px 14px; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-navy); font-family: inherit; font-size: 14px; transition: var(--transition);
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-orange); box-shadow: 0 0 0 3px var(--accent-orange-soft); }
+
+        select {
+            cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%238c8168' stroke-width='1.6' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+        }
+
+        textarea { resize: vertical; min-height: 160px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; line-height: 1.6; background-color: var(--bg-panel); }
+
+        .checkbox-container { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--text-body); background: var(--bg-panel); padding: 13px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-soft); user-select: none; }
+        .checkbox-container input { width: 17px; height: 17px; accent-color: var(--accent-orange); flex-shrink: 0; cursor: pointer; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 10px; }
+
+        button {
+            width: 100%; padding: 14px 20px; background-color: var(--accent-orange); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14.5px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 16px -8px rgba(199,107,63,0.55);
+        }
+        button:hover { background-color: var(--accent-orange-hover); transform: translateY(-1px); }
+        button.btn-frais { background-color: var(--accent-sage); box-shadow: 0 6px 16px -8px rgba(124,146,113,0.5); }
+        button.btn-frais:hover { background-color: var(--accent-sage-hover); }
+        button.btn-calcul { background-color: var(--accent-gold); box-shadow: 0 6px 16px -8px rgba(199,154,75,0.5); }
+        button.btn-calcul:hover { background-color: var(--accent-gold-hover); }
+        button.btn-blue { background-color: var(--accent-blue); box-shadow: 0 6px 16px -8px rgba(111,143,171,0.5); }
+        button.btn-blue:hover { background-color: #5b7993; }
+        button.btn-terracotta { background-color: var(--accent-terracotta); box-shadow: 0 6px 16px -8px rgba(179, 84, 60, 0.5); }
+        button.btn-terracotta:hover { background-color: #9c432f; }
+        button.btn-secondaire { background-color: var(--bg-card); color: var(--text-navy); border: 1px solid var(--border-color); box-shadow: none; }
+        button.btn-secondaire:hover { background-color: var(--bg-panel); border-color: var(--text-navy); }
+        button.btn-danger-sm { padding: 6px 10px; font-size: 12px; background-color: var(--accent-terracotta); border-radius: 4px; box-shadow: none; width: auto; display: inline-flex; }
+        button.btn-danger-sm:hover { background-color: #9c432f; }
+        button:disabled { background-color: var(--border-soft) !important; color: var(--text-muted) !important; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+        .status { margin-top: 22px; padding: 15px 16px; border-radius: var(--radius-sm); font-weight: 600; display: none; white-space: pre-line; font-size: 13.5px; line-height: 1.6; border-left: 4px solid transparent; }
+        .status.success { background-color: var(--accent-sage-soft); color: #4c6144; border-left-color: var(--accent-sage); }
+        .status.error { background-color: var(--accent-terracotta-soft); color: #8f3f2a; border-left-color: var(--accent-terracotta); }
+        .status.info { background-color: var(--accent-blue-soft); color: #3f5a72; border-left-color: var(--accent-blue); display: block; }
+
+        .hidden { display: none !important; }
+        .zone-resultat-box { background: var(--bg-panel); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin-top: 22px; }
+        .zone-resultat-box textarea { background-color: var(--bg-input) !important; }
+
+        /* --- STYLE DU TABLEAU D'AVANCEMENT & GESTION --- */
+        .table-container { margin-top: 24px; overflow-x: auto; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-input); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border-soft); }
+        th { background-color: var(--bg-panel); color: var(--text-navy); font-weight: 700; position: sticky; top: 0; }
+        tr:hover { background-color: var(--bg-card); }
+        .evo-pos { color: #4c6144; font-weight: 600; }
+        .evo-neg { color: #b3543c; font-weight: 600; }
+        .evo-neu { color: var(--text-muted); }
+
+        .data-management-list { background: var(--bg-panel); border-radius: var(--radius); border: 1px solid var(--border-soft); padding: 16px; margin-top: 15px; max-height: 250px; overflow-y: auto; }
+        .data-management-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 13px; }
+
+        .app-footer { text-align: center; font-size: 12.5px; color: var(--text-muted); margin-top: 28px; }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 22px 12px 0 12px; }
+            .container { padding: 22px 16px; border-radius: 16px; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 10px; }
+            .tabs-nav { flex-wrap: nowrap; overflow-x: auto; }
+            .tab-btn { flex: 0 0 auto; padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-stripe"></div>
+
+<div class="page-wrap">
+
+    <div id="authScreen" class="container">
+        <div class="lock-icon">🔒</div>
+        <h1>Accès sécurisé</h1>
+        <div class="form-group">
+            <label for="codeAcces">Clé d'accès requise</label>
+            <input type="text" id="codeAcces" placeholder="Chargement des configurations..." oninput="detecterCode()" disabled style="text-align: center; font-size: 16px; letter-spacing: 2px;">
+        </div>
+        <div id="statusAuth" class="status"></div>
+    </div>
+
+    <div id="mainContent" class="container hidden">
+        <div class="card-header">
+            <span class="mark">📊</span>
+            <div>
+                <span class="kicker">Outil interne</span>
+                <h1>Analyseur global</h1>
+            </div>
+        </div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-primes', this)"><span class="step-num">1</span> Primes</button>
+            <button class="tab-btn" onclick="switchTab('tab-frais', this)"><span class="step-num">2</span> Frais</button>
+            <button class="tab-btn" onclick="switchTab('tab-calculs', this)"><span class="step-num">3</span> Calculs</button>
+            <button class="tab-btn" onclick="switchTab('tab-concours', this)"><span class="step-num">4</span> Concours</button>
+        </div>
+
+        <label class="checkbox-container" style="margin-top: 15px;">
+            <input type="checkbox" id="exclureZeros" checked>
+            <span>Masquer automatiquement les valeurs égales à 0 (Primes & Frais)</span>
+        </label>
+
+        <div id="tab-primes" class="tab-content active">
+            <h2>💰 Primes des directeurs</h2>
+            <div class="form-group">
+                <label for="selectWebhookPrimes">📁 Salon de destination Discord</label>
+                <select id="selectWebhookPrimes"></select>
+            </div>
+            <div class="form-group">
+                <label for="primeMaxBase">Plafond de prime max par poste</label>
+                <input type="text" id="primeMaxBase" placeholder="Ex: 5M">
+            </div>
+            <div class="form-group">
+                <label for="grosTexte">Données du tableau des primes</label>
+                <textarea id="grosTexte" placeholder="Collez les lignes ici..."></textarea>
+            </div>
+            <button id="btnEnvoyerPrimes" onclick="traiterEtEnvoyerPrimes()">🚀 Analyser et envoyer sur Discord</button>
+        </div>
+
+        <div id="tab-frais" class="tab-content">
+            <h2>🏢 Frais de gestion</h2>
+            <div class="form-group">
+                <label for="selectWebhookFrais">📁 Salon de destination Discord</label>
+                <select id="selectWebhookFrais"></select>
+            </div>
+            <div class="form-group">
+                <label for="texteFrais">Données du tableau des frais de gestion</label>
+                <textarea id="texteFrais" placeholder="Filiale    Frais de gestion..."></textarea>
+            </div>
+            <button id="btnEnvoyerFrais" class="btn-frais" onclick="traiterEtEnvoyerFrais()">🚀 Analyser et envoyer sur Discord</button>
+        </div>
+
+        <div id="tab-calculs" class="tab-content">
+            <h2>🧮 Calcul & classement</h2>
+            <div class="form-group">
+                <label for="selectWebhookClassement">📁 Salon du classement & Concours</label>
+                <select id="selectWebhookClassement"></select>
+            </div>
+            <div class="form-group">
+                <label for="typeClassement">🎯 Type de données / classement souhaité</label>
+                <select id="typeClassement" onchange="ajusterDescriptionChamps()">
+                    <option value="exploitation">📊 Tableau des résultats</option>
+                    <option value="capitaux">💎 Tableau d'apport — Capitaux propres</option>
+                    <option value="plusvalue">📈 Tableau d'apport — Plus-value %</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="texteResultatsFiliales" id="labelDonneesTableau">Tableau complet des résultats</label>
+                <p class="input-desc" id="descDonneesTableau">Doit contenir l'ordre : Filiale, Trésorerie, Résultat d'exploitation...</p>
+                <textarea id="texteResultatsFiliales" placeholder="Filiale    Trésorerie..."></textarea>
+            </div>
+            <div id="sectionCalculPourcentage" class="form-group">
+                <label for="pourcentageFrais">Pourcentage resultat d'exploitation</label>
+                <input type="text" id="pourcentageFrais" placeholder="Ex : 15" style="max-width: 200px;">
+            </div>
+            <div class="grid-2">
+                <button id="btnCalculerFrais" class="btn-calcul" onclick="calculerFraisParPourcentage()">🧮 Calculer les frais</button>
+                <button id="btnEnvoyerClassement" class="btn-secondaire" onclick="genererEtEnvoyerClassement()">🏆 Générer & envoyer le classement</button>
+            </div>
+            <div id="zoneResultatCalcul" class="zone-resultat-box hidden">
+                <label for="resultatFraisCalcules">✅ Résultat généré</label>
+                <textarea id="resultatFraisCalcules" readonly style="min-height: 100px;"></textarea>
+                <div class="grid-2" style="margin-top: 12px;">
+                    <button id="btnCopierFrais" class="btn-secondaire" onclick="copierResultatFrais()">📋 Copier</button>
+                    <button id="btnInsererFrais" class="btn-secondaire" onclick="insererDansChampFrais()">➡️ Injecter dans Frais</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-concours" class="tab-content">
+            <h2>🏆 Suivi Multi-Concours Simultané</h2>
+            
+            <div class="form-group">
+                <label for="selectWebhookConcours">📁 Salon de destination Discord</label>
+                <select id="selectWebhookConcours"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="selectConcoursActif">🎯 Concours en cours d'utilisation</label>
+                <select id="selectConcoursActif" onchange="changerConcoursSelectionne()"></select>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 22px;">
+                <button id="btnNouveauConcours" class="btn-frais" onclick="creerNouveauConcours()">🏁 Commencer un Nouveau Concours</button>
+                <button id="btnTerminerConcours" class="btn-terracotta" onclick="cloturerConcoursActif()">🛑 Terminer le Concours sélectionné</button>
+            </div>
+
+            <div id="zoneSaisieDonneesConcours">
+                <div class="form-group">
+                    <label for="texteConcours">Nouvelles données instantanées du tableau d'apport</label>
+                    <p class="input-desc">Collez à tout moment un nouveau bloc. L'historique accepte plusieurs envois par jour sans écraser les précédents.</p>
+                    <textarea id="texteConcours" placeholder="Patrimonia-Atchoum62 50000000000000000000 55892938029854896588..."></textarea>
+                </div>
+                <div class="grid-3">
+                    <button id="btnSauvegarderConcours" class="btn-blue" onclick="sauvegarderDonneesConcours()">💾 Enregistrer ce bloc</button>
+                    <button id="btnAfficherTableau" class="btn-secondaire" onclick="genererTableauAvancement()">📈 Afficher l'avancement</button>
+                    <button id="btnEnvoyerDiscordConcours" class="btn-calcul" onclick="envoyerConcoursDiscord()">📢 Envoyer Discord</button>
+                </div>
+            </div>
+
+            <div id="wrapperTableauAvancement" class="hidden" style="margin-top: 26px;">
+                <h3>📊 Évolution Chronologique Globale (en %)</h3>
+                <p class="input-desc">Affiche l'évolution relative au snapshot précédent.</p>
+                <div class="table-container">
+                    <table id="tableAvancement">
+                        <thead><tr id="theadAvancement"></tr></thead>
+                        <tbody id="tbodyAvancement"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="wrapperGestionDonnees" class="hidden" style="margin-top: 26px;">
+                <h3>🛠️ Administration des données du concours</h3>
+                <div id="listeGestionDonnees" class="data-management-list"></div>
+            </div>
+        </div>
+
+        <div id="statusBox" class="status"></div>
+    </div>
+    <p class="app-footer">Usage interne</p>
+</div>
+
+<script>
+// ==========================================
+// CONFIGURATION DU PROXY CLOUDFLARE WORKER
+// ==========================================
+const CLOUDFLARE_WORKER_URL = "https://github-proxy.<ton-pseudo>.workers.dev";
+
+const URL_WEBHOOKS_JSON = "https://raw.githubusercontent.com/YTiradol/Assistant_Tiramisu/main/webhook.json";
+const REPO_OWNER = "YTiradol";
+const REPO_NAME = "Assistant_Tiramisu";
+const CONCOURS_FILE_PATH = "concours.json";
+
+let DICTIONNAIRE_WEBHOOKS = {};
+let DONNEES_GLOBALES_JSON = { concoursParCode: {} };
+let CODE_ACCES_ACTUEL = "";
+let CONCOURS_FILE_SHA = "";
+
+function switchTab(tabId, btnEl) {
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    const activeBtn = btnEl || (window.event && window.event.currentTarget);
+    if (activeBtn) activeBtn.classList.add('active');
+    document.getElementById("statusBox").style.display = "none";
+}
+
+function ajusterDescriptionChamps() {
+    const type = document.getElementById("typeClassement").value;
+    const label = document.getElementById("labelDonneesTableau");
+    const desc = document.getElementById("descDonneesTableau");
+    const inputTexte = document.getElementById("texteResultatsFiliales");
+    const btnCalcul = document.getElementById("btnCalculerFrais");
+    const sectionPourcent = document.getElementById("sectionCalculPourcentage");
+    const zoneResultat = document.getElementById("zoneResultatCalcul");
+
+    if (type === "capitaux" || type === "plusvalue") {
+        label.innerText = "Tableau des Apports & Capitaux propres :";
+        desc.innerText = "Ordre requis : Filiale, Apport, Capitaux propres, Latence, Plus-value.";
+        inputTexte.placeholder = "Filiale    Apport    Capitaux propres...";
+        btnCalcul.disabled = true;
+        sectionPourcent.style.display = "none";
+        zoneResultat.classList.add("hidden");
+    } else {
+        label.innerText = "Tableau complet des résultats des filiales :";
+        desc.innerText = "Ordre requis : Filiale, Trésorerie, Résultat d'exploitation, Résultat NET...";
+        inputTexte.placeholder = "Filiale    Trésorerie    Résultat d'exploitation...";
+        btnCalcul.disabled = false;
+        sectionPourcent.style.display = "block";
+    }
+}
+
+async function chargerDictionnaireWebhooks() {
+    const champCode = document.getElementById("codeAcces");
+    const statusAuth = document.getElementById("statusAuth");
+    try {
+        const reponse = await fetch(`${URL_WEBHOOKS_JSON}?t=${Date.now()}`, { cache: "no-store" });
+        if (!reponse.ok) throw new Error(`Statut ${reponse.status}`);
+        DICTIONNAIRE_WEBHOOKS = await reponse.json();
+        champCode.disabled = false;
+        champCode.placeholder = "Entrez votre code secret";
+        if (champCode.value.trim()) detecterCode();
+    } catch (e) {
+        champCode.placeholder = "Erreur de chargement";
+        statusAuth.innerText = "❌ Erreur de récupération des webhooks.";
+        statusAuth.className = "status error";
+        statusAuth.style.display = "block";
+    }
+}
+chargerDictionnaireWebhooks();
+
+function detecterCode() {
+    const code = document.getElementById("codeAcces").value.trim();
+    const authScreen = document.getElementById("authScreen");
+    const mainContent = document.getElementById("mainContent");
+    
+    if (DICTIONNAIRE_WEBHOOKS[code]) {
+        CODE_ACCES_ACTUEL = code;
+        ["selectWebhookPrimes", "selectWebhookFrais", "selectWebhookClassement", "selectWebhookConcours"].forEach(id => document.getElementById(id).innerHTML = "");
+        
+        DICTIONNAIRE_WEBHOOKS[code].forEach((salon) => {
+            const nomMinuscule = salon.nom.toLowerCase();
+            const option = `<option value="${salon.url}">${salon.nom}</option>`;
+            if (nomMinuscule.startsWith("prime")) document.getElementById("selectWebhookPrimes").innerHTML += option;
+            if (nomMinuscule.startsWith("fdg") || nomMinuscule.startsWith("frais")) document.getElementById("selectWebhookFrais").innerHTML += option;
+            if (nomMinuscule.includes("classement")) {
+                document.getElementById("selectWebhookClassement").innerHTML += option;
+                document.getElementById("selectWebhookConcours").innerHTML += option;
+            }
+        });
+
+        authScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        initialiserDonneesConcours();
+    }
+}
+
+const CONFIG_UNITES = [
+    { symbole: 'D', taille: 45 }, { symbole: 'N', taille: 42 }, { symbole: 'X', taille: 39 },
+    { symbole: 'S', taille: 36 }, { symbole: 'U', taille: 33 }, { symbole: 'Q', taille: 30 },
+    { symbole: 'R', taille: 27 }, { symbole: 'Y', taille: 24 }, { symbole: 'Z', taille: 21 },
+    { symbole: 'E', taille: 18 }, { symbole: 'P', taille: 15 }, { symbole: 'T', taille: 12 },
+    { symbole: 'G', taille: 9 },  { symbole: 'M', taille: 6 }
+];
+
+function convertirEnBigInt(chaine) {
+    let nettoye = chaine.trim().toUpperCase().replace(/,/g, '.');
+    if (!nettoye || nettoye === '0' || nettoye === '-' || nettoye === '.') return 0n;
+    for (const u of CONFIG_UNITES) {
+        if (nettoye.endsWith(u.symbole)) {
+            let valeurNum = nettoye.slice(0, -1).trim();
+            let floatValeur = parseFloat(valeurNum);
+            if (isNaN(floatValeur)) return 0n;
+            let shift = u.taille;
+            if (valeurNum.includes('.')) {
+                let decimales = valeurNum.split('.')[1].length;
+                floatValeur = floatValeur * Math.pow(10, decimales);
+                shift -= decimales;
+            }
+            if (shift < 0) return BigInt(Math.round(parseFloat(valeurNum) * Math.pow(10, u.taille)));
+            return BigInt(Math.round(floatValeur)) * (10n ** BigInt(shift));
+        }
+    }
+    let chiffresSeuls = nettoye.replace(/[^0-9]/g, '');
+    return chiffresSeuls ? BigInt(chiffresSeuls) : 0n;
+}
+
+function formaterGrandNombre(chaineNombre) {
+    const nette = chaineNombre.replace(/[^0-9]/g, '');
+    if (!nette || nette === '0') return "Aucune (0)";
+    const longueur = nette.length;
+    for (const u of CONFIG_UNITES) {
+        if (longueur >= u.taille + 1) {
+            const rangSlicing = longueur - u.taille;
+            const partieEntiere = nette.substring(0, rangSlicing);
+            const partieDecimale = nette.substring(rangSlicing, rangSlicing + 2);
+            if (partieDecimale === "00") return `${partieEntiere} ${u.symbole}`;
+            return `${partieEntiere},${partieDecimale} ${u.symbole}`;
+        }
+    }
+    return BigInt(nette).toLocaleString('fr-FR');
+}
+
+// --- SYSTEME MULTI-CONCOURS INTERNE SANS DATE VIA PROXY ---
+async function initialiserDonneesConcours() {
+    try {
+        // On effectue un appel GET vers le Worker qui va s'occuper de contacter l'API GitHub de manière transparente
+        const reponse = await fetch(`${CLOUDFLARE_WORKER_URL}?t=${Date.now()}`, { cache: "no-store" });
+        if (reponse.ok) {
+            const corps = await reponse.json();
+            CONCOURS_FILE_SHA = corps.sha;
+            const contenuDecode = decodeURIComponent(atob(corps.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            DONNEES_GLOBALES_JSON = JSON.parse(contenuDecode);
+        }
+    } catch(e) { console.log("Création du fichier programmée ou erreur de proxy Cloudflare."); }
+    
+    if (!DONNEES_GLOBALES_JSON.concoursParCode) DONNEES_GLOBALES_JSON.concoursParCode = {};
+    if (!DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL]) {
+        DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL] = [];
+    }
+    
+    rafraichirSelectConcours();
+}
+
+function rafraichirSelectConcours(forcerSelectionIdx = null) {
+    const select = document.getElementById("selectConcoursActif");
+    const ancienIndexSelectionne = select.value;
+    select.innerHTML = "";
+    
+    const liste = DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL] || [];
+    if (liste.length === 0) {
+        select.innerHTML = '<option value="">-- Aucun concours actif. Cliquez sur "Commencer" --</option>';
+        document.getElementById("zoneSaisieDonneesConcours").classList.add("hidden");
+        document.getElementById("wrapperTableauAvancement").classList.add("hidden");
+        document.getElementById("wrapperGestionDonnees").classList.add("hidden");
+        return;
+    }
+    
+    document.getElementById("zoneSaisieDonneesConcours").classList.remove("hidden");
+    liste.forEach((c, index) => {
+        const statut = c.cloture ? "🔴 Terminé (En attente de publication)" : "🟢 En cours";
+        select.innerHTML += `<option value="${index}">Concours #${index + 1} [${statut} - ${Object.keys(c.historique || {}).length} blocs]</option>`;
+    });
+
+    if (forcerSelectionIdx !== null) {
+        select.value = forcerSelectionIdx;
+    } else if (ancienIndexSelectionne !== "" && select.querySelector(`option[value="${ancienIndexSelectionne}"]`)) {
+        select.value = ancienIndexSelectionne;
+    } else {
+        select.value = liste.length - 1;
+    }
+    
+    changerConcoursSelectionne();
+}
+
+function getConcoursSelectionne() {
+    const idx = document.getElementById("selectConcoursActif").value;
+    if (idx === "" || !DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL]) return null;
+    return DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL][idx];
+}
+
+function changerConcoursSelectionne() {
+    const c = getConcoursSelectionne();
+    document.getElementById("wrapperTableauAvancement").classList.add("hidden");
+    if (c) {
+        document.getElementById("btnTerminerConcours").disabled = c.cloture;
+        document.getElementById("btnSauvegarderConcours").disabled = c.cloture;
+        rafraichirZoneGestionDonnees(c);
+        if (Object.keys(c.historique || {}).length > 0) {
+            genererTableauAvancement();
+        }
+    } else {
+        document.getElementById("wrapperGestionDonnees").classList.add("hidden");
+    }
+}
+
+function creerNouveauConcours() {
+    if (!DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL]) {
+        DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL] = [];
+    }
+    
+    DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL].push({
+        cloture: false,
+        historique: {}
+    });
+    
+    const nouvelIndex = DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL].length - 1;
+    rafraichirSelectConcours(nouvelIndex);
+    afficherStatus("🏁 Un nouveau concours a été lancé en parallèle sans impacter les autres !", "success");
+}
+
+function cloturerConcoursActif() {
+    const c = getConcoursSelectionne();
+    if (c) {
+        c.cloture = true;
+        synchroniserAvecGitHub("Clôture du concours (En attente de publication)");
+        rafraichirSelectConcours();
+        afficherStatus("🛑 Concours marqué comme 'Terminé'. Envoyez les résultats sur Discord pour purger définitivement les données du fichier.", "info");
+    }
+}
+
+function rafraichirZoneGestionDonnees(concours) {
+    const wrapper = document.getElementById("wrapperGestionDonnees");
+    const listeDiv = document.getElementById("listeGestionDonnees");
+    listeDiv.innerHTML = "";
+    
+    const cles = Object.keys(concours.historique || {}).sort();
+    if (cles.length === 0) {
+        wrapper.classList.add("hidden");
+        return;
+    }
+    
+    wrapper.classList.remove("hidden");
+    cles.forEach(timestamp => {
+        const nbFiliales = Object.keys(concours.historique[timestamp]).length;
+        listeDiv.innerHTML += `
+            <div class="data-management-item">
+                <span>📦 <strong>${timestamp}</strong> (${nbFiliales} filiales insérées)</span>
+                <button class="btn-danger-sm" ${concours.cloture ? 'disabled' : ''} onclick="supprimerBlocDonnee('${timestamp}')">🗑️ Supprimer ce bloc</button>
+            </div>
+        `;
+    });
+}
+
+function supprimerBlocDonnee(timestamp) {
+    const c = getConcoursSelectionne();
+    if (!c || c.cloture) return;
+    if (confirm(`Voulez-vous vraiment supprimer définitivement le bloc de données du [${timestamp}] ?`)) {
+        delete c.historique[timestamp];
+        synchroniserAvecGitHub(`Suppression du snapshot ${timestamp}`);
+        changerConcoursSelectionne();
+        afficherStatus("🗑️ Bloc supprimé avec succès.", "success");
+    }
+}
+
+async function sauvegarderDonneesConcours() {
+    const c = getConcoursSelectionne();
+    const texteRaw = document.getElementById("texteConcours").value.trim();
+    if (!c) { afficherStatus("❌ Veuillez d'abord démarrer ou sélectionner un concours.", "error"); return; }
+    if (c.cloture) { afficherStatus("❌ Ce concours est clôturé.", "error"); return; }
+    if (!texteRaw) { afficherStatus("❌ Veuillez coller des données valides.", "error"); return; }
+
+    const donneesDuJour = analyserTableauCapitaux(texteRaw, "capitaux");
+    if (donneesDuJour.length === 0) { afficherStatus("❌ Aucune ligne conforme détectée.", "error"); return; }
+
+    const maintenant = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const timestampInstant = `Données du ${pad(maintenant.getDate())}/${pad(maintenant.getMonth()+1)} à ${pad(maintenant.getHours())}:${pad(maintenant.getMinutes())}:${pad(maintenant.getSeconds())}`;
+
+    if (!c.historique) c.historique = {};
+    c.historique[timestampInstant] = {};
+    donneesDuJour.forEach(d => { c.historique[timestampInstant][d.filiale] = d.capitauxPropres.toString(); });
+
+    document.getElementById("texteConcours").value = "";
+    await synchroniserAvecGitHub(`Ajout de données instantanées - ${timestampInstant}`);
+    changerConcoursSelectionne();
+    afficherStatus(`✅ Bloc instantané enregistré sous l'index [${timestampInstant}] !`, "success");
+}
+
+async function synchroniserAvecGitHub(messageCommit) {
+    const contenuJSONString = JSON.stringify(DONNEES_GLOBALES_JSON, null, 2);
+    const base64Contenu = btoa(encodeURIComponent(contenuJSONString).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+
+    const bodyPayload = { 
+        message: `${messageCommit} (Clé: ${CODE_ACCES_ACTUEL.substring(0,4)}...)`, 
+        content: base64Contenu 
+    };
+    if (CONCOURS_FILE_SHA) bodyPayload.sha = CONCOURS_FILE_SHA;
+
+    try {
+        // Envoi en méthode PUT vers le Cloudflare Worker au lieu de GitHub directement
+        const reponsePut = await fetch(CLOUDFLARE_WORKER_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyPayload)
+        });
+        if (!reponsePut.ok) throw new Error("Échec de synchronisation via le proxy Cloudflare.");
+        const dataPutJson = await reponsePut.json();
+        if (dataPutJson.content) CONCOURS_FILE_SHA = dataPutJson.content.sha;
+    } catch (e) {
+        afficherStatus(`⚠️ Erreur de synchronisation cloud : ${e.message}`, "error");
+    }
+}
+
+function genererTableauAvancement() {
+    const wrapper = document.getElementById("wrapperTableauAvancement");
+    const thead = document.getElementById("theadAvancement");
+    const tbody = document.getElementById("tbodyAvancement");
+    const c = getConcoursSelectionne();
+
+    if (!c || !c.historique || Object.keys(c.historique).length === 0) {
+        wrapper.classList.add("hidden");
+        return;
+    }
+
+    const datesTriees = Object.keys(c.historique).sort();
+    
+    thead.innerHTML = "<th>Filiale / Code</th>";
+    datesTriees.forEach(date => {
+        thead.innerHTML += `<th>${date}</th>`;
+    });
+
+    const setFiliales = new Set();
+    datesTriees.forEach(d => {
+        Object.keys(c.historique[d]).forEach(f => setFiliales.add(f));
+    });
+    const listeFiliales = Array.from(setFiliales).sort();
+
+    tbody.innerHTML = "";
+    listeFiliales.forEach(filiale => {
+        let trHtml = `<td><strong>${filiale}</strong></td>`;
+        
+        datesTriees.forEach((date, index) => {
+            const donneesJour = c.historique[date];
+            const capAujStr = donneesJour[filiale];
+
+            if (!capAujStr) {
+                trHtml += `<td class="evo-neu">❌ Absente</td>`;
+                return;
+            }
+
+            if (index === 0) {
+                trHtml += `<td class="evo-neu">Base 🏁</td>`;
+            } else {
+                const datePrecedente = datesTriees[index - 1];
+                const capHierStr = c.historique[datePrecedente][filiale];
+
+                if (!capHierStr) {
+                    trHtml += `<td class="evo-pos">🆕 Nouvelle</td>`;
+                } else {
+                    const capAuj = BigInt(capAujStr);
+                    const capHier = BigInt(capHierStr);
+                    
+                    if (capHier > 0n) {
+                        const diff = capAuj - capHier;
+                        const evolPercent = Number(diff * 10000n / capHier) / 100;
+                        const signe = evolPercent >= 0 ? "+" : "";
+                        const classeStyle = evolPercent >= 0 ? "evo-pos" : "evo-neg";
+                        trHtml += `<td class="${classeStyle}">${signe}${evolPercent.toFixed(2)}%</td>`;
+                    } else {
+                        trHtml += `<td class="evo-neu">0%</td>`;
+                    }
+                }
+            }
+        });
+        tbody.innerHTML += `<tr>${trHtml}</tr>`;
+    });
+
+    wrapper.classList.remove("hidden");
+}
+
+async function envoyerConcoursDiscord() {
+    const selectWebhook = document.getElementById("selectWebhookConcours");
+    const btn = document.getElementById("btnEnvoyerDiscordConcours");
+    const idxSelectionne = document.getElementById("selectConcoursActif").value;
+    const c = getConcoursSelectionne();
+    
+    if (!selectWebhook.value) { afficherStatus("❌ Configurez d'abord le salon Discord.", "error"); return; }
+    if (!c || !c.historique || Object.keys(c.historique).length === 0) { afficherStatus("❌ Historique vide.", "error"); return; }
+    btn.disabled = true;
+
+    try {
+        const datesTriees = Object.keys(c.historique).sort();
+        const dateInitiale = datesTriees[0];
+        const dateAujourdhui = datesTriees[datesTriees.length - 1];
+        const dateHier = datesTriees.length > 1 ? datesTriees[datesTriees.length - 2] : dateInitiale;
+
+        const dataInit = c.historique[dateInitiale];
+        const dataHier = c.historique[dateHier];
+        const dataAuj = c.historique[dateAujourdhui];
+
+        const toutesLesFiliales = new Set([...Object.keys(dataInit), ...Object.keys(dataHier), ...Object.keys(dataAuj)]);
+        let listeRapport = [];
+
+        toutesLesFiliales.forEach(filiale => {
+            const capInit = dataInit[filiale] ? BigInt(dataInit[filiale]) : 0n;
+            const capHier = dataHier[filiale] ? BigInt(dataHier[filiale]) : 0n;
+            const capAuj = dataAuj[filiale] ? BigInt(dataAuj[filiale]) : 0n;
+
+            let evoQuo = "N/A", evoTot = "N/A", tri = 0;
+
+            if (capHier > 0n && capAuj > 0n) {
+                const r = Number((capAuj - capHier) * 10000n / capHier) / 100;
+                evoQuo = (r >= 0 ? "+" : "") + r.toFixed(2) + "%";
+            } else if (capHier === 0n && capAuj > 0n) evoQuo = "🆕 Nouvelle";
+              else if (capHier > 0n && capAuj === 0n) evoQuo = "❌ Disparue";
+
+            if (capInit > 0n && capAuj > 0n) {
+                tri = Number((capAuj - capInit) * 10000n / capInit) / 100;
+                evoTot = (tri >= 0 ? "+" : "") + tri.toFixed(2) + "%";
+            } else if (capInit === 0n && capAuj > 0n) { evoTot = "🆕 Nouvelle"; tri = 99999; }
+              else if (capHier > 0n && capAuj === 0n) { evoTot = "❌ Retirée"; tri = -99999; }
+
+            listeRapport.push({ filiale, evoQuotidienne: evoQuo, evoTotale: evoTot, triValue: tri });
+        });
+
+        listeRapport.sort((a,b) => b.triValue - a.triValue);
+        let currentFields = []; const embeds = [];
+        const prefixTitre = c.cloture ? "🏁 [RÉSULTATS FINAUX]" : "🏆 [SUIVI INTERMÉDIAIRE]";
+
+        listeRapport.forEach((item, idx) => {
+            currentFields.push({ name: `🏢 #${idx+1} ${item.filiale}`, value: `• Évol. Dernier Bloc : \`${item.evoQuotidienne}\` \n• Évol. Globale : **\`${item.evoTotale}\`**`, inline: true });
+            if (currentFields.length === 24) {
+                embeds.push({ title: `${prefixTitre} Rapport d'Évolution`, color: c.cloture ? 14495300 : 15774258, fields: currentFields });
+                currentFields = [];
+            }
+        });
+
+        if (currentFields.length > 0) {
+            embeds.push({ title: `${prefixTitre} Rapport Global de Concours`, description: `Comparatif global réalisé entre le premier et le dernier snapshot.`, color: c.cloture ? 14495300 : 15774258, fields: currentFields, timestamp: new Date().toISOString() });
+        }
+
+        await envoyerEmbedsSurDiscord(selectWebhook.value, embeds, "Arbitre du Concours");
+
+        if (c.cloture) {
+            DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL].splice(idxSelectionne, 1);
+            await synchroniserAvecGitHub(`Purge et suppression du concours après publication des résultats finaux`);
+            rafraichirSelectConcours();
+            afficherStatus("✅ Résultats finaux publiés sur Discord ! Le concours a été purgé avec succès de la base de données.", "success");
+        } else {
+            afficherStatus("✅ Rapport intermédiaire envoyé sur Discord !", "success");
+        }
+    } catch(e) { afficherStatus(`❌ Erreur Discord : ${e.message}`, "error"); }
+    finally { btn.disabled = false; }
+}
+
+// --- LOGIQUE METIER CLASSIQUE ---
+async function traiterEtEnvoyerPrimes() {
+    const selectWebhookPrimes = document.getElementById("selectWebhookPrimes");
+    const grosTexte = document.getElementById("grosTexte").value.trim();
+    const exclureZeros = document.getElementById("exclureZeros").checked;
+    const btn = document.getElementById("btnEnvoyerPrimes");
+    if (!selectWebhookPrimes.value || !grosTexte) return;
+
+    btn.disabled = true;
+    try {
+        const lines = grosTexte.split("\n");
+        const primesCumulees = new Map();
+        let sommeTotalePrimes = 0n;
+
+        for (let i = 1; i < lines.length; i++) {
+            let ligne = lines[i].trim(); if (!ligne) continue;
+            const morceaux = ligne.replace(/\s+/g, " ").split(" "); if (morceaux.length < 5) continue;
+            let prime = morceaux[morceaux.length - 1];
+            let indexDirecteur = morceaux.length - 3;
+            const directeur = morceaux.slice(indexDirecteur, morceaux.length - 2).join(" ").trim();
+            if (!directeur) continue;
+
+            let valeurPrimeNumerique = convertirEnBigInt(prime);
+            sommeTotalePrimes += valeurPrimeNumerique;
+            primesCumulees.set(directeur, (primesCumulees.get(directeur) || 0n) + valeurPrimeNumerique);
+        }
+
+        let listeTriees = Array.from(primesCumulees.entries()).sort((a, b) => (b[1] > a[1] ? 1 : -1));
+        let currentFields = []; const embeds = [];
+
+        for (const [directeur, totalPrime] of listeTriees) {
+            if (exclureZeros && totalPrime === 0n) continue;
+            currentFields.push({ name: `👤 ${directeur}`, value: `\`${formaterGrandNombre(totalPrime.toString())} 💰\``, inline: true });
+            if (currentFields.length === 24) { embeds.push({ title: "💰 Rapport des Primes", color: 5793266, fields: currentFields }); currentFields = []; }
+        }
+        currentFields.push({ name: "📊 Somme totale", value: `\`${formaterGrandNombre(sommeTotalePrimes.toString())} 💰\``, inline: false });
+        embeds.push({ title: "💰 Rapport des Primes Finaux", color: 5793266, fields: currentFields });
+
+        await envoyerEmbedsSurDiscord(selectWebhookPrimes.value, embeds, "Gestionnaire des Primes");
+        afficherStatus("✅ Primes envoyées !", "success");
+    } catch (e) { afficherStatus(`❌ Erreur : ${e.message}`, "error"); } finally { btn.disabled = false; }
+}
+
+async function traiterEtEnvoyerFrais() {
+    const selectWebhookFrais = document.getElementById("selectWebhookFrais");
+    const texteFrais = document.getElementById("texteFrais").value.trim();
+    const exclureZeros = document.getElementById("exclureZeros").checked;
+    const btn = document.getElementById("btnEnvoyerFrais");
+    if (!selectWebhookFrais.value || !texteFrais) return;
+    btn.disabled = true;
+
+    try {
+        const lines = texteFrais.split("\n"); const fraisParFiliale = new Map(); let sommeTotaleFrais = 0n;
+        for (let i = 1; i < lines.length; i++) {
+            let ligne = lines[i].trim(); if (!ligne) continue;
+            const morceaux = ligne.split(/\s+/); if (morceaux.length < 2) continue;
+            let filiale = morceaux.slice(0, -1).join(" "); let valeurFrais = convertirEnBigInt(morceaux[morceaux.length - 1]);
+            fraisParFiliale.set(filiale, valeurFrais); sommeTotaleFrais += valeurFrais;
+        }
+
+        let listeFraisTriees = Array.from(fraisParFiliale.entries()).sort((a, b) => (b[1] > a[1] ? 1 : -1));
+        let currentFields = []; const embeds = [];
+
+        for (const [filiale, totalFrais] of listeFraisTriees) {
+            if (exclureZeros && totalFrais === 0n) continue;
+            currentFields.push({ name: `🏢 ${filiale}`, value: `\`${formaterGrandNombre(totalFrais.toString())} 💸\``, inline: true });
+            if (currentFields.length === 24) { embeds.push({ title: "🏢 Frais de Gestion", color: 2335962, fields: currentFields }); currentFields = []; }
+        }
+        currentFields.push({ name: "📊 Total Frais", value: `\`${formaterGrandNombre(sommeTotaleFrais.toString())} 💸\``, inline: false });
+        embeds.push({ title: "🏢 Frais Global", color: 2335962, fields: currentFields });
+
+        await envoyerEmbedsSurDiscord(selectWebhookFrais.value, embeds, "Gestionnaire Financier");
+        afficherStatus("✅ Frais envoyés !", "success");
+    } catch (e) { afficherStatus(`❌ Erreur : ${e.message}`, "error"); } finally { btn.disabled = false; }
+}
+
+async function genererEtEnvoyerClassement() {
+    const selectWebhookClassement = document.getElementById("selectWebhookClassement");
+    const texte = document.getElementById("texteResultatsFiliales").value.trim();
+    const typeClassement = document.getElementById("typeClassement").value;
+    const btn = document.getElementById("btnEnvoyerClassement");
+    if (!selectWebhookClassement.value || !texte) return;
+    btn.disabled = true;
+
+    try {
+        let donnees = (typeClassement === "capitaux" || typeClassement === "plusvalue") ? analyserTableauCapitaux(texte, typeClassement) : analyserTableauResultats(texte);
+        const classees = donnees.sort((a, b) => (b.valeurCible > a.valeurCible ? 1 : -1));
+        let currentFields = []; const embeds = [];
+
+        classees.forEach((d, index) => {
+            currentFields.push({ name: `🔹 ${index + 1}. ${d.filiale}`, value: `Valeur : \`${typeClassement === "plusvalue" ? d.valeurCible.toString() + "%" : formaterGrandNombre(d.valeurCible.toString())}\``, inline: true });
+            if (currentFields.length === 24) { embeds.push({ title: "🏆 Classement", color: 15774258, fields: currentFields }); currentFields = []; }
+        });
+        if (currentFields.length > 0) embeds.push({ title: "🏆 Classement Général", color: 15774258, fields: currentFields });
+
+        await envoyerEmbedsSurDiscord(selectWebhookClassement.value, embeds, "Classement des Filiales");
+        afficherStatus("✅ Classement envoyé !", "success");
+    } catch (e) { afficherStatus(`❌ Erreur : ${e.message}`, "error"); } finally { btn.disabled = false; }
+}
+
+function analyserTableauResultats(texte) {
+    return texte.split("\n").slice(1).map(l => {
+        const t = l.trim().split(/\s+/); if (t.length < 5) return null;
+        return { filiale: t.slice(0, -4).join(" "), valeurCible: convertirEnBigInt(t[t.length - 3]), resultatExploitation: convertirEnBigInt(t[t.length - 3]) };
+    }).filter(x => x !== null);
+}
+
+function analyserTableauCapitaux(texte, mode) {
+    return texte.split("\n").map(l => {
+        const t = l.trim().split(/\s+/); if (t.length < 5 || t[0].toLowerCase() === "filiale") return null;
+        const v = mode === "plusvalue" ? convertirEnBigInt(t[t.length - 1]) : convertirEnBigInt(t[t.length - 3]);
+        return { filiale: t.slice(0, -4).join(" "), capitauxPropres: convertirEnBigInt(t[t.length - 3]), valeurCible: v };
+    }).filter(x => x !== null);
+}
+
+function calculerFraisParPourcentage() {
+    const texte = document.getElementById("texteResultatsFiliales").value.trim();
+    const pourcentageStr = document.getElementById("pourcentageFrais").value.trim();
+    if (!texte || !pourcentageStr) return;
+    const pct = parseFloat(pourcentageStr.replace(",", "."));
+
+    const donnees = analyserTableauResultats(texte);
+    const lignesSortie = donnees.map(d => {
+        const frais = (d.resultatExploitation * BigInt(Math.round(pct * 1000))) / 100000n;
+        return `${d.filiale}\t${frais.toString()}`;
+    });
+    document.getElementById("resultatFraisCalcules").value = lignesSortie.join("\n");
+    document.getElementById("zoneResultatCalcul").classList.remove("hidden");
+}
+
+async function copierResultatFrais() {
+    await navigator.clipboard.writeText(document.getElementById("resultatFraisCalcules").value);
+    afficherStatus("📋 Copié !", "success");
+}
+
+function insererDansChampFrais() {
+    document.getElementById("texteFrais").value = "Filiale\tFrais de gestion\n" + document.getElementById("resultatFraisCalcules").value;
+    switchTab('tab-frais');
+}
+
+async function envoyerEmbedsSurDiscord(url, embedsArray, nomRobot) {
+    while (embedsArray.length > 0) {
+        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: nomRobot, embeds: embedsArray.splice(0, 5) }) });
+        await new Promise(r => setTimeout(r, 500));
+    }
+}
+
+function afficherStatus(message, type) {
+    const box = document.getElementById("statusBox"); box.innerText = message; box.className = "status " + type; box.style.display = "block";
+}
+</script>
+</body>
+</html>
