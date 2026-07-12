@@ -2,7 +2,7 @@
   "concoursParCode": {
     "curly": [
       {
-        "cloture": false,
+        "cloture": true,
         "historique": {
           "Données du 12/07 à 03:35:51": {
             "Patrimonia-Atchoum62": "55892938029854896588",
