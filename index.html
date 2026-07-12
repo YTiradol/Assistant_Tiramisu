@@ -450,6 +450,7 @@
 const URL_WORKER_SYNC = "https://mon-proxy-empire.yangtiradol.workers.dev/sync";
 
 const URL_WEBHOOKS_JSON = "https://raw.githubusercontent.com/YTiradol/Assistant_Tiramisu/main/webhook.json";
+const URL_AVATAR_BOT = "https://raw.githubusercontent.com/YTiradol/Assistant_Tiramisu/main/1000013937.jpg";
 const REPO_OWNER = "YTiradol";
 const REPO_NAME = "Assistant_Tiramisu";
 const CONCOURS_FILE_PATH = "concours.json";
@@ -1053,7 +1054,7 @@ function insererDansChampFrais() {
 
 async function envoyerEmbedsSurDiscord(url, embedsArray, nomRobot) {
     while (embedsArray.length > 0) {
-        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: nomRobot, embeds: embedsArray.splice(0, 5) }) });
+        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: nomRobot, avatar_url: URL_AVATAR_BOT, embeds: embedsArray.splice(0, 5) }) });
         await new Promise(r => setTimeout(r, 500));
     }
 }
