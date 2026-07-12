@@ -311,23 +311,36 @@
         </div>
 
         <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-primes', this)"><span class="step-num">1</span> Primes</button>
-            <button class="tab-btn" onclick="switchTab('tab-frais', this)"><span class="step-num">2</span> Frais</button>
-            <button class="tab-btn" onclick="switchTab('tab-calculs', this)"><span class="step-num">3</span> Calculs</button>
-            <button class="tab-btn" onclick="switchTab('tab-concours', this)"><span class="step-num">4</span> Concours</button>
+            <button class="tab-btn active" onclick="switchTab('tab-config', this)"><span class="step-num">1</span> Configuration</button>
+            <button class="tab-btn" onclick="switchTab('tab-primes', this)"><span class="step-num">2</span> Primes</button>
+            <button class="tab-btn" onclick="switchTab('tab-frais', this)"><span class="step-num">3</span> Frais</button>
+            <button class="tab-btn" onclick="switchTab('tab-calculs', this)"><span class="step-num">4</span> Calculs</button>
+            <button class="tab-btn" onclick="switchTab('tab-concours', this)"><span class="step-num">5</span> Concours</button>
         </div>
 
-        <label class="checkbox-container" style="margin-top: 15px;">
+        <label class="checkbox-container">
             <input type="checkbox" id="exclureZeros" checked>
             <span>Masquer automatiquement les valeurs égales à 0 (Primes & Frais)</span>
         </label>
 
-        <div id="tab-primes" class="tab-content active">
-            <h2>💰 Primes des directeurs</h2>
+        <div id="tab-config" class="tab-content active">
+            <h2>⚙️ Salons de destination & Sécurité</h2>
             <div class="form-group">
-                <label for="selectWebhookPrimes">📁 Salon de destination Discord</label>
+                <label for="selectWebhookPrimes">📁 Salon des primes</label>
                 <select id="selectWebhookPrimes"></select>
             </div>
+            <div class="form-group">
+                <label for="selectWebhookFrais">📁 Salon des frais</label>
+                <select id="selectWebhookFrais"></select>
+            </div>
+            <div class="form-group">
+                <label for="selectWebhookClassement">📁 Salon du classement & Concours</label>
+                <select id="selectWebhookClassement"></select>
+            </div>
+        </div>
+
+        <div id="tab-primes" class="tab-content">
+            <h2>💰 Primes des directeurs</h2>
             <div class="form-group">
                 <label for="primeMaxBase">Plafond de prime max par poste</label>
                 <input type="text" id="primeMaxBase" placeholder="Ex: 5M">
@@ -342,10 +355,6 @@
         <div id="tab-frais" class="tab-content">
             <h2>🏢 Frais de gestion</h2>
             <div class="form-group">
-                <label for="selectWebhookFrais">📁 Salon de destination Discord</label>
-                <select id="selectWebhookFrais"></select>
-            </div>
-            <div class="form-group">
                 <label for="texteFrais">Données du tableau des frais de gestion</label>
                 <textarea id="texteFrais" placeholder="Filiale    Frais de gestion..."></textarea>
             </div>
@@ -354,10 +363,6 @@
 
         <div id="tab-calculs" class="tab-content">
             <h2>🧮 Calcul & classement</h2>
-            <div class="form-group">
-                <label for="selectWebhookClassement">📁 Salon du classement & Concours</label>
-                <select id="selectWebhookClassement"></select>
-            </div>
             <div class="form-group">
                 <label for="typeClassement">🎯 Type de données / classement souhaité</label>
                 <select id="typeClassement" onchange="ajusterDescriptionChamps()">
@@ -372,7 +377,7 @@
                 <textarea id="texteResultatsFiliales" placeholder="Filiale    Trésorerie..."></textarea>
             </div>
             <div id="sectionCalculPourcentage" class="form-group">
-                <label for="pourcentageFrais">Pourcentage resultat d'exploitation</label>
+                <label for="pourcentageFrais">Pourcentage resultat d'exploi</label>
                 <input type="text" id="pourcentageFrais" placeholder="Ex : 15" style="max-width: 200px;">
             </div>
             <div class="grid-2">
@@ -392,11 +397,6 @@
         <div id="tab-concours" class="tab-content">
             <h2>🏆 Suivi Multi-Concours Simultané</h2>
             
-            <div class="form-group">
-                <label for="selectWebhookConcours">📁 Salon de destination Discord</label>
-                <select id="selectWebhookConcours"></select>
-            </div>
-
             <div class="form-group">
                 <label for="selectConcoursActif">🎯 Concours en cours d'utilisation</label>
                 <select id="selectConcoursActif" onchange="changerConcoursSelectionne()"></select>
@@ -444,9 +444,11 @@
 
 <script>
 // ==========================================
-// CONFIGURATION DU PROXY CLOUDFLARE WORKER
+// CONFIGURATION : le token GitHub n'est PLUS ici.
+// Il est stocké côté serveur, dans le Cloudflare Worker.
+// Remplace l'URL ci-dessous par celle de TON Worker déployé.
 // ==========================================
-const CLOUDFLARE_WORKER_URL = "https://github-proxy.<ton-pseudo>.workers.dev";
+const URL_WORKER_SYNC = "https://mon-proxy-empire.yangtiradol.workers.dev/sync";
 
 const URL_WEBHOOKS_JSON = "https://raw.githubusercontent.com/YTiradol/Assistant_Tiramisu/main/webhook.json";
 const REPO_OWNER = "YTiradol";
@@ -518,17 +520,14 @@ function detecterCode() {
     
     if (DICTIONNAIRE_WEBHOOKS[code]) {
         CODE_ACCES_ACTUEL = code;
-        ["selectWebhookPrimes", "selectWebhookFrais", "selectWebhookClassement", "selectWebhookConcours"].forEach(id => document.getElementById(id).innerHTML = "");
+        ["selectWebhookPrimes", "selectWebhookFrais", "selectWebhookClassement"].forEach(id => document.getElementById(id).innerHTML = "");
         
         DICTIONNAIRE_WEBHOOKS[code].forEach((salon) => {
             const nomMinuscule = salon.nom.toLowerCase();
             const option = `<option value="${salon.url}">${salon.nom}</option>`;
             if (nomMinuscule.startsWith("prime")) document.getElementById("selectWebhookPrimes").innerHTML += option;
             if (nomMinuscule.startsWith("fdg") || nomMinuscule.startsWith("frais")) document.getElementById("selectWebhookFrais").innerHTML += option;
-            if (nomMinuscule.includes("classement")) {
-                document.getElementById("selectWebhookClassement").innerHTML += option;
-                document.getElementById("selectWebhookConcours").innerHTML += option;
-            }
+            if (nomMinuscule.includes("classement")) document.getElementById("selectWebhookClassement").innerHTML += option;
         });
 
         authScreen.classList.add("hidden");
@@ -583,18 +582,18 @@ function formaterGrandNombre(chaineNombre) {
     return BigInt(nette).toLocaleString('fr-FR');
 }
 
-// --- SYSTEME MULTI-CONCOURS INTERNE SANS DATE VIA PROXY ---
+// --- SYSTEME MULTI-CONCOURS INTERNE SANS DATE ---
 async function initialiserDonneesConcours() {
     try {
-        // On effectue un appel GET vers le Worker qui va s'occuper de contacter l'API GitHub de manière transparente
-        const reponse = await fetch(`${CLOUDFLARE_WORKER_URL}?t=${Date.now()}`, { cache: "no-store" });
+        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONCOURS_FILE_PATH}`;
+        const reponse = await fetch(url + `?t=${Date.now()}`, { cache: "no-store" });
         if (reponse.ok) {
             const corps = await reponse.json();
             CONCOURS_FILE_SHA = corps.sha;
             const contenuDecode = decodeURIComponent(atob(corps.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
             DONNEES_GLOBALES_JSON = JSON.parse(contenuDecode);
         }
-    } catch(e) { console.log("Création du fichier programmée ou erreur de proxy Cloudflare."); }
+    } catch(e) { console.log("Création du fichier programmée."); }
     
     if (!DONNEES_GLOBALES_JSON.concoursParCode) DONNEES_GLOBALES_JSON.concoursParCode = {};
     if (!DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL]) {
@@ -661,6 +660,7 @@ function creerNouveauConcours() {
         DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL] = [];
     }
     
+    // CORRECTION : On ne ferme plus automatiquement les anciens concours ! Ils restent ouverts en parallèle.
     DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL].push({
         cloture: false,
         historique: {}
@@ -750,13 +750,14 @@ async function synchroniserAvecGitHub(messageCommit) {
     if (CONCOURS_FILE_SHA) bodyPayload.sha = CONCOURS_FILE_SHA;
 
     try {
-        // Envoi en méthode PUT vers le Cloudflare Worker au lieu de GitHub directement
-        const reponsePut = await fetch(CLOUDFLARE_WORKER_URL, {
-            method: "PUT",
+        // On n'appelle plus l'API GitHub directement : le Worker Cloudflare
+        // fait le relais et ajoute le token GitHub côté serveur.
+        const reponsePut = await fetch(URL_WORKER_SYNC, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyPayload)
         });
-        if (!reponsePut.ok) throw new Error("Échec de synchronisation via le proxy Cloudflare.");
+        if (!reponsePut.ok) throw new Error("Échec d'envoi GitHub.");
         const dataPutJson = await reponsePut.json();
         if (dataPutJson.content) CONCOURS_FILE_SHA = dataPutJson.content.sha;
     } catch (e) {
@@ -832,7 +833,7 @@ function genererTableauAvancement() {
 }
 
 async function envoyerConcoursDiscord() {
-    const selectWebhook = document.getElementById("selectWebhookConcours");
+    const selectWebhook = document.getElementById("selectWebhookClassement");
     const btn = document.getElementById("btnEnvoyerDiscordConcours");
     const idxSelectionne = document.getElementById("selectConcoursActif").value;
     const c = getConcoursSelectionne();
@@ -892,8 +893,10 @@ async function envoyerConcoursDiscord() {
             embeds.push({ title: `${prefixTitre} Rapport Global de Concours`, description: `Comparatif global réalisé entre le premier et le dernier snapshot.`, color: c.cloture ? 14495300 : 15774258, fields: currentFields, timestamp: new Date().toISOString() });
         }
 
+        // Publication sur Discord
         await envoyerEmbedsSurDiscord(selectWebhook.value, embeds, "Arbitre du Concours");
 
+        // MODIFICATION & NETTOYAGE : Si le concours était clôturé, on purge maintenant qu'il est envoyé sur Discord
         if (c.cloture) {
             DONNEES_GLOBALES_JSON.concoursParCode[CODE_ACCES_ACTUEL].splice(idxSelectionne, 1);
             await synchroniserAvecGitHub(`Purge et suppression du concours après publication des résultats finaux`);
