@@ -3,7 +3,7 @@
     "curly": [],
     "junior": [
       {
-        "cloture": false,
+        "cloture": true,
         "historique": {
           "Données du 12/07 à 13:17:22": {
             "Patrimonia-ArsèneLupin": "127223505023815600138",
