@@ -849,35 +849,59 @@ async function envoyerConcoursDiscord() {
         const datesTriees = Object.keys(c.historique).sort();
         const dateInitiale = datesTriees[0];
         const dateAujourdhui = datesTriees[datesTriees.length - 1];
-        const dateHier = datesTriees.length > 1 ? datesTriees[datesTriees.length - 2] : dateInitiale;
 
         const dataInit = c.historique[dateInitiale];
-        const dataHier = c.historique[dateHier];
         const dataAuj = c.historique[dateAujourdhui];
 
-        const toutesLesFiliales = new Set([...Object.keys(dataInit), ...Object.keys(dataHier), ...Object.keys(dataAuj)]);
+        // Libellé court pour chaque date (ex: "Données du 12/07 à 13:18:08" -> "12/07 13:18")
+        const libelleCourt = (dateKey) => {
+            const m = dateKey.match(/du (.+) à (\d{2}):(\d{2})/);
+            return m ? `${m[1]} ${m[2]}:${m[3]}` : dateKey;
+        };
+
+        const toutesLesFiliales = new Set();
+        datesTriees.forEach(d => Object.keys(c.historique[d]).forEach(f => toutesLesFiliales.add(f)));
+
         let listeRapport = [];
 
         toutesLesFiliales.forEach(filiale => {
             const capInit = dataInit[filiale] ? BigInt(dataInit[filiale]) : 0n;
-            const capHier = dataHier[filiale] ? BigInt(dataHier[filiale]) : 0n;
             const capAuj = dataAuj[filiale] ? BigInt(dataAuj[filiale]) : 0n;
 
-            let evoQuo = "N/A", evoTot = "N/A", tri = 0;
-
-            if (capHier > 0n && capAuj > 0n) {
-                const r = Number((capAuj - capHier) * 10000n / capHier) / 100;
-                evoQuo = (r >= 0 ? "+" : "") + r.toFixed(2) + "%";
-            } else if (capHier === 0n && capAuj > 0n) evoQuo = "🆕 Nouvelle";
-              else if (capHier > 0n && capAuj === 0n) evoQuo = "❌ Disparue";
-
+            // Évolution globale (premier vs dernier snapshot) — utilisée pour le tri et l'affichage final
+            let evoTot = "N/A", tri = 0;
             if (capInit > 0n && capAuj > 0n) {
                 tri = Number((capAuj - capInit) * 10000n / capInit) / 100;
                 evoTot = (tri >= 0 ? "+" : "") + tri.toFixed(2) + "%";
             } else if (capInit === 0n && capAuj > 0n) { evoTot = "🆕 Nouvelle"; tri = 99999; }
-              else if (capHier > 0n && capAuj === 0n) { evoTot = "❌ Retirée"; tri = -99999; }
+              else if (capInit > 0n && capAuj === 0n) { evoTot = "❌ Retirée"; tri = -99999; }
 
-            listeRapport.push({ filiale, evoQuotidienne: evoQuo, evoTotale: evoTot, triValue: tri });
+            // Évolution jour par jour (chaque bloc par rapport au précédent)
+            let lignesQuotidiennes = [];
+            for (let i = 1; i < datesTriees.length; i++) {
+                const dateJ = datesTriees[i];
+                const datePrec = datesTriees[i - 1];
+                const capJStr = c.historique[dateJ][filiale];
+                const capPrecStr = c.historique[datePrec][filiale];
+
+                let ligneVal;
+                if (!capJStr) continue; // filiale absente ce jour-là, on ne l'affiche pas
+                if (!capPrecStr) {
+                    ligneVal = "🆕 Nouvelle";
+                } else {
+                    const capJ = BigInt(capJStr);
+                    const capPrec = BigInt(capPrecStr);
+                    if (capPrec > 0n) {
+                        const r = Number((capJ - capPrec) * 10000n / capPrec) / 100;
+                        ligneVal = (r >= 0 ? "+" : "") + r.toFixed(2) + "%";
+                    } else {
+                        ligneVal = "0%";
+                    }
+                }
+                lignesQuotidiennes.push(`• ${libelleCourt(dateJ)} : \`${ligneVal}\``);
+            }
+
+            listeRapport.push({ filiale, lignesQuotidiennes, evoTotale: evoTot, triValue: tri });
         });
 
         listeRapport.sort((a,b) => b.triValue - a.triValue);
@@ -885,7 +909,11 @@ async function envoyerConcoursDiscord() {
         const prefixTitre = c.cloture ? "🏁 [RÉSULTATS FINAUX]" : "🏆 [SUIVI INTERMÉDIAIRE]";
 
         listeRapport.forEach((item, idx) => {
-            currentFields.push({ name: `🏢 #${idx+1} ${item.filiale}`, value: `• Évol. Dernier Bloc : \`${item.evoQuotidienne}\` \n• Évol. Globale : **\`${item.evoTotale}\`**`, inline: true });
+            const detailJournalier = item.lignesQuotidiennes.length > 0
+                ? item.lignesQuotidiennes.join("\n")
+                : "• Pas encore d'historique";
+            const valeurChamp = `${detailJournalier}\n• Évol. Globale : **\`${item.evoTotale}\`**`;
+            currentFields.push({ name: `🏢 #${idx+1} ${item.filiale}`, value: valeurChamp.slice(0, 1024), inline: true });
             if (currentFields.length === 24) {
                 embeds.push({ title: `${prefixTitre} Rapport d'Évolution`, color: c.cloture ? 14495300 : 15774258, fields: currentFields });
                 currentFields = [];
