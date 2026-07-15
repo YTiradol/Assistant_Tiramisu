@@ -17,14 +17,14 @@
             "url": "https://discordapp.com/api/webhooks/1524412314210795632/RiLe38ht3bGTNU876DziXPrZzyS8Ol6KAg1LCmD6rmHdIWWz7IsI_bKFtM5kXHjRsDl_"
         },
         {
-            "nom": "FDG Apero-partie",
+            "nom": "Prime Apero-partie",
             "url": "https://discordapp.com/api/webhooks/1524412541604728872/N8_K1C05cer-dakuFs2HjL2Zntj62uJqrLdHGDjLeGvwXzUAxQePS4e3HvX5_oFqtQdg"
         },
         {
-            "nom": "Prime Apero-partie",
+            "nom": "FDG Apero-partie",
             "url": "https://discordapp.com/api/webhooks/1524413015359881340/BYsugD9oCYqm5OM2yasbmMC9u2X66AV8egQyoU31QFI9dxEBKK2dqseF4oyiEHQnuR9x"
         },
-        { 
+        {
             "nom": "classement patrimonia",
             "url": "https://discordapp.com/api/webhooks/1524684570736197645/pWKT8ephA7Czpg8QvshAkkKssxhRFNrpixiM7EoQoxAdtHFD7LyeZhTOHZC83OLL51GA"
         },
@@ -83,6 +83,12 @@
         {
             "nom": "Classement concours capital",
             "url": "https://discord.com/api/webhooks/1525564444594147420/1_oaPzj2xJsbBmh-qFV-NkRhgFOaRP_v2nut-Nsyf-PNdVZojWP0Xp-wal8ZRhLA6pW_"
+        }
+    ],
+    "tiramisu": [
+        {
+            "nom": "Prime",
+            "url": "https://discordapp.com/api/webhooks/1527002818895155332/e2_Vbvij7hAVIN05EKBBc3UNnteG0ybodh8-g_k-YrPbJW6mupEiSBOnOkCKYky93LYl"
         }
     ]
 }
