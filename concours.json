@@ -2,7 +2,7 @@
   "concoursParCode": {
     "curly": [
       {
-        "cloture": false,
+        "cloture": true,
         "historique": {}
       }
     ],
