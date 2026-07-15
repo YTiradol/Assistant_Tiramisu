@@ -271,6 +271,18 @@
         .evo-neg { color: #b3543c; font-weight: 600; }
         .evo-neu { color: var(--text-muted); }
 
+        /* --- STYLE CALCUL DES PRIMES --- */
+        .joueurs-liste { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px 0; }
+        .joueur-chip { display: flex; align-items: center; gap: 7px; background: var(--bg-panel); border: 1px solid var(--border-soft); padding: 8px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--text-body); cursor: pointer; user-select: none; transition: var(--transition); }
+        .joueur-chip:hover { border-color: var(--accent-orange); }
+        .joueur-chip input { width: 15px; height: 15px; accent-color: var(--accent-orange); cursor: pointer; flex-shrink: 0; }
+        .joueur-chip.chip-inactif { opacity: 0.55; }
+        table td.col-check, table th.col-check { text-align: center; width: 34px; }
+        table input[type="checkbox"].chk-ligne { width: 16px; height: 16px; accent-color: var(--accent-orange); cursor: pointer; }
+        tr.ligne-inactive td { opacity: 0.4; }
+        tr.ligne-filiale-sep td { background-color: var(--bg-panel); color: var(--text-navy); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; padding-top: 10px; padding-bottom: 10px; }
+        tr.ligne-total td { font-weight: 700; background-color: var(--accent-orange-soft); border-top: 2px solid var(--border-color); }
+
         .data-management-list { background: var(--bg-panel); border-radius: var(--radius); border: 1px solid var(--border-soft); padding: 16px; margin-top: 15px; max-height: 250px; overflow-y: auto; }
         .data-management-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 13px; }
 
@@ -314,12 +326,13 @@
             <button class="tab-btn active" onclick="switchTab('tab-primes', this)"><span class="step-num">1</span> Primes</button>
             <button class="tab-btn" onclick="switchTab('tab-frais', this)"><span class="step-num">2</span> Frais</button>
             <button class="tab-btn" onclick="switchTab('tab-calculs', this)"><span class="step-num">3</span> Calculs</button>
-            <button class="tab-btn" onclick="switchTab('tab-concours', this)"><span class="step-num">4</span> Concours</button>
+            <button class="tab-btn" onclick="switchTab('tab-calcul-primes', this)"><span class="step-num">4</span> Calcul Primes</button>
+            <button class="tab-btn" onclick="switchTab('tab-concours', this)"><span class="step-num">5</span> Concours</button>
         </div>
 
         <label class="checkbox-container">
-            <input type="checkbox" id="exclureZeros" checked>
-            <span>Masquer automatiquement les valeurs égales à 0 (Primes & Frais)</span>
+            <input type="checkbox" id="exclureZeros" checked onchange="siDejaCalculeAlorsRafraichir()">
+            <span>Masquer automatiquement les valeurs égales à 0 (Primes & Frais & Calcul Primes)</span>
         </label>
 
         <div id="tab-primes" class="tab-content active">
@@ -385,6 +398,78 @@
                 <div class="grid-2" style="margin-top: 12px;">
                     <button id="btnCopierFrais" class="btn-secondaire" onclick="copierResultatFrais()">📋 Copier</button>
                     <button id="btnInsererFrais" class="btn-secondaire" onclick="insererDansChampFrais()">➡️ Injecter dans Frais</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-calcul-primes" class="tab-content">
+            <h2>🎯 Calcul des primes par filiale</h2>
+            <div class="form-group">
+                <label for="texteResultatsPrimesFiliales">Tableau complet des résultats des filiales</label>
+                <p class="input-desc">Doit contenir l'ordre : Filiale, Trésorerie, Résultat d'exploitation, Résultat NET, Bénéfices ou pertes.</p>
+                <textarea id="texteResultatsPrimesFiliales" placeholder="Filiale    Trésorerie    Résultat d'exploitation    Résultat NET    Bénéfices ou pertes..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="texteResultatsPrimesPostes">Tableau des postes / directeurs / primes max</label>
+                <p class="input-desc">Doit contenir l'ordre : Filiale, Poste, Directeur, Prime Max, Prime.</p>
+                <textarea id="texteResultatsPrimesPostes" placeholder="Filiale    Poste    Directeur    Prime Max    Prime..."></textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="basePrimes">🎯 Résultat de référence (affiché & utilisé en %)</label>
+                    <select id="basePrimes" onchange="siDejaCalculeAlorsRafraichir()">
+                        <option value="exploitation">📊 Résultat d'exploitation</option>
+                        <option value="net">📈 Résultat NET</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modeCalculPrimes">⚙️ Mode de calcul de la prime</label>
+                    <select id="modeCalculPrimes" onchange="ajusterModeCalculPrimes()">
+                        <option value="pourcentage">📐 Pourcentage du résultat (partagé au prorata)</option>
+                        <option value="fixe">🔒 Montant fixe pour tous (plafonné par leur max)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group" id="sectionPourcentagePrimes">
+                    <label for="pourcentagePrimes">Pourcentage à distribuer</label>
+                    <input type="text" id="pourcentagePrimes" placeholder="Ex : 15" oninput="siDejaCalculeAlorsRafraichir()">
+                </div>
+                <div class="form-group hidden" id="sectionMontantFixePrimes">
+                    <label for="montantFixePrimes">Montant fixe par personne (avec unité)</label>
+                    <input type="text" id="montantFixePrimes" placeholder="Ex : 10E" oninput="siDejaCalculeAlorsRafraichir()">
+                </div>
+            </div>
+            <button id="btnCalculerPrimes" class="btn-calcul" onclick="calculerPrimesParPourcentage()">🧮 Calculer les primes</button>
+
+            <div id="zoneTablePrimesCalculees" class="zone-resultat-box hidden">
+                <h3 style="margin-top:0;">👥 Joueurs présents</h3>
+                <p class="input-desc">Décochez un joueur pour ne pas lui verser de prime dans TOUTES les filiales où il apparaît, en une seule fois.</p>
+                <div id="listeJoueursPrimes" class="joueurs-liste"></div>
+
+                <h3>📋 Détail par filiale</h3>
+                <p class="input-desc">Décochez une case pour ne pas verser de prime à cette personne dans cette filiale précise (mise à 0). Les cases sont décochées automatiquement si le nom de la filiale ne contient pas le nom du joueur.</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="col-check">✅</th>
+                                <th>Filiale</th>
+                                <th>Poste</th>
+                                <th>Directeur</th>
+                                <th>Prime Max</th>
+                                <th>Prime calculée</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPrimesCalculees"></tbody>
+                    </table>
+                </div>
+
+                <label for="sortiePrimesCalculees" style="margin-top:18px; display:block;">✅ Liste au format texte (Filiale / Directeur / Prime)</label>
+                <textarea id="sortiePrimesCalculees" readonly style="min-height: 120px;"></textarea>
+                <div class="grid-2" style="margin-top: 12px;">
+                    <button id="btnCopierPrimesCalculees" class="btn-secondaire" onclick="copierResultatPrimesCalculees()">📋 Copier</button>
+                    <button id="btnInsererPrimesCalculees" class="btn-secondaire" onclick="insererDansChampPrimes()">➡️ Injecter dans Primes</button>
                 </div>
             </div>
         </div>
@@ -1078,6 +1163,271 @@ async function copierResultatFrais() {
 function insererDansChampFrais() {
     document.getElementById("texteFrais").value = "Filiale\tFrais de gestion\n" + document.getElementById("resultatFraisCalcules").value;
     switchTab('tab-frais');
+}
+
+// --- CALCUL DES PRIMES PAR FILIALE ---
+const POSTES_CONNUS_PRIMES = ["Directeur Général", "PDG"]; // du plus spécifique au moins spécifique
+
+let ETAT_PRIMES = { filiales: new Map(), lignes: [] };
+
+function normaliserNomJoueur(chaine) {
+    return (chaine || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
+function parserTableauFilialesPrimes(texte) {
+    const carte = new Map();
+    const lignes = texte.split("\n");
+    for (let i = 1; i < lignes.length; i++) {
+        let ligne = lignes[i].trim(); if (!ligne) continue;
+        const t = ligne.split(/\s+/); if (t.length < 5) continue;
+        const filiale = t.slice(0, -4).join(" ");
+        carte.set(filiale, {
+            resultatExploitation: convertirEnBigInt(t[t.length - 3]),
+            resultatNet: convertirEnBigInt(t[t.length - 2])
+        });
+    }
+    return carte;
+}
+
+function parserTableauPostesPrimes(texte, nomsFilialesConnues) {
+    const lignes = texte.split("\n");
+    const resultat = [];
+
+    // Noms de filiales connus (venant du 1er tableau), triés du plus long (en nombre de mots)
+    // au plus court, pour faire correspondre en priorité le préfixe le plus spécifique.
+    const filialesTriees = [...(nomsFilialesConnues || [])]
+        .map(nom => ({ nom, mots: nom.split(/\s+/) }))
+        .sort((a, b) => b.mots.length - a.mots.length);
+
+    for (let i = 0; i < lignes.length; i++) {
+        let ligne = lignes[i].trim(); if (!ligne) continue;
+        const t = ligne.split(/\s+/); if (t.length < 4) continue;
+        if (t[0].toLowerCase() === "filiale") continue; // ligne d'en-tête
+
+        // Le nom de filiale peut contenir plusieurs mots (ex: "Impérial - Arsène Lupin - AR").
+        // On cherche donc quelle filiale connue correspond exactement au début de la ligne.
+        let filiale = null, nbMotsFiliale = 0;
+        for (const { nom, mots } of filialesTriees) {
+            if (mots.length < t.length && mots.every((m, idx) => m === t[idx])) {
+                filiale = nom;
+                nbMotsFiliale = mots.length;
+                break;
+            }
+        }
+        // Repli si aucune filiale connue ne correspond (tableau des filiales vide ou nom différent) :
+        // on reprend l'ancien comportement (1 seul mot) pour ne rien casser.
+        if (filiale === null) { filiale = t[0]; nbMotsFiliale = 1; }
+
+        const reste = t.slice(nbMotsFiliale);
+        if (reste.length < 3) continue;
+
+        const primeMax = convertirEnBigInt(reste[reste.length - 2]);
+        const milieu = reste.slice(0, reste.length - 2).join(" ");
+
+        let poste = "", directeur = "";
+        const posteTrouve = POSTES_CONNUS_PRIMES.find(p => milieu.toLowerCase().startsWith(p.toLowerCase()));
+        if (posteTrouve) {
+            poste = posteTrouve;
+            directeur = milieu.slice(posteTrouve.length).trim();
+        } else {
+            const mots = milieu.split(" ");
+            poste = mots[0] || "";
+            directeur = mots.slice(1).join(" ").trim();
+        }
+        if (!directeur) directeur = milieu;
+        resultat.push({ filiale, poste, directeur, primeMax });
+    }
+    return resultat;
+}
+
+function ajusterModeCalculPrimes() {
+    const mode = document.getElementById("modeCalculPrimes").value;
+    document.getElementById("sectionPourcentagePrimes").classList.toggle("hidden", mode !== "pourcentage");
+    document.getElementById("sectionMontantFixePrimes").classList.toggle("hidden", mode !== "fixe");
+    siDejaCalculeAlorsRafraichir();
+}
+
+function calculerPrimesParPourcentage() {
+    const texteFiliales = document.getElementById("texteResultatsPrimesFiliales").value.trim();
+    const textePostes = document.getElementById("texteResultatsPrimesPostes").value.trim();
+    const mode = document.getElementById("modeCalculPrimes").value;
+    if (!texteFiliales || !textePostes) { afficherStatus("❌ Merci de remplir les deux tableaux.", "error"); return; }
+
+    if (mode === "pourcentage") {
+        const pourcentageStr = document.getElementById("pourcentagePrimes").value.trim();
+        if (!pourcentageStr || isNaN(parseFloat(pourcentageStr.replace(",", ".")))) { afficherStatus("❌ Pourcentage invalide.", "error"); return; }
+    } else {
+        const montantStr = document.getElementById("montantFixePrimes").value.trim();
+        if (!montantStr) { afficherStatus("❌ Merci de renseigner le montant fixe.", "error"); return; }
+    }
+
+    const filiales = parserTableauFilialesPrimes(texteFiliales);
+    const lignesBrutes = parserTableauPostesPrimes(textePostes, filiales.keys());
+    if (lignesBrutes.length === 0) { afficherStatus("❌ Impossible d'analyser le tableau des postes.", "error"); return; }
+
+    ETAT_PRIMES.filiales = filiales;
+    ETAT_PRIMES.lignes = lignesBrutes.map((l, idx) => ({
+        id: idx,
+        filiale: l.filiale,
+        poste: l.poste,
+        directeur: l.directeur,
+        primeMax: l.primeMax,
+        actif: normaliserNomJoueur(l.directeur).length > 0 && normaliserNomJoueur(l.filiale).includes(normaliserNomJoueur(l.directeur)),
+        primeBrute: 0n,
+        primeFinale: 0n
+    }));
+
+    document.getElementById("zoneTablePrimesCalculees").classList.remove("hidden");
+    recalculerEtAfficherPrimes();
+}
+
+function siDejaCalculeAlorsRafraichir() {
+    if (ETAT_PRIMES.lignes.length > 0 && !document.getElementById("zoneTablePrimesCalculees").classList.contains("hidden")) {
+        recalculerEtAfficherPrimes();
+    }
+}
+
+function recalculerEtAfficherPrimes() {
+    const base = document.getElementById("basePrimes").value;
+    const mode = document.getElementById("modeCalculPrimes").value;
+
+    // 1. Regroupement des lignes par filiale
+    const parFiliale = new Map();
+    ETAT_PRIMES.lignes.forEach(l => {
+        if (!parFiliale.has(l.filiale)) parFiliale.set(l.filiale, []);
+        parFiliale.get(l.filiale).push(l);
+    });
+
+    if (mode === "fixe") {
+        // 2a. Mode montant fixe : chaque personne active reçoit ce montant, plafonné par sa propre prime max de la ligne
+        const montantFixe = convertirEnBigInt(document.getElementById("montantFixePrimes").value.trim());
+        ETAT_PRIMES.lignes.forEach(l => {
+            l.primeBrute = l.actif ? (montantFixe < l.primeMax ? montantFixe : l.primeMax) : 0n;
+        });
+    } else {
+        // 2b. Mode pourcentage : calcul du pot par filiale et répartition brute au prorata de la prime max des personnes actives
+        const pctStr = document.getElementById("pourcentagePrimes").value.trim().replace(",", ".");
+        const pct = parseFloat(pctStr);
+        if (isNaN(pct)) { afficherStatus("❌ Pourcentage invalide.", "error"); return; }
+        const pctMillieme = BigInt(Math.round(pct * 1000));
+
+        parFiliale.forEach((lignesFiliale, nomFiliale) => {
+            const donneesFiliale = ETAT_PRIMES.filiales.get(nomFiliale);
+            const baseValeur = donneesFiliale ? (base === "net" ? donneesFiliale.resultatNet : donneesFiliale.resultatExploitation) : 0n;
+            const pot = (baseValeur * pctMillieme) / 100000n;
+
+            const lignesActives = lignesFiliale.filter(l => l.actif);
+            const sommeMax = lignesActives.reduce((acc, l) => acc + l.primeMax, 0n);
+
+            lignesFiliale.forEach(l => { l.primeBrute = 0n; });
+            if (sommeMax > 0n) {
+                lignesActives.forEach(l => { l.primeBrute = (pot * l.primeMax) / sommeMax; });
+            }
+        });
+    }
+
+    // 3. Plafonnement : la somme des primes d'une même personne sur toutes ses filiales ne doit pas dépasser sa prime max
+    const parDirecteur = new Map();
+    ETAT_PRIMES.lignes.forEach(l => {
+        if (!parDirecteur.has(l.directeur)) parDirecteur.set(l.directeur, []);
+        parDirecteur.get(l.directeur).push(l);
+    });
+
+    parDirecteur.forEach(lignesDirecteur => {
+        const plafondPersonne = lignesDirecteur.reduce((acc, l) => (l.primeMax > acc ? l.primeMax : acc), 0n);
+        const totalBrut = lignesDirecteur.reduce((acc, l) => acc + l.primeBrute, 0n);
+        if (totalBrut > plafondPersonne && totalBrut > 0n) {
+            lignesDirecteur.forEach(l => { l.primeFinale = (l.primeBrute * plafondPersonne) / totalBrut; });
+        } else {
+            lignesDirecteur.forEach(l => { l.primeFinale = l.primeBrute; });
+        }
+    });
+
+    afficherTablePrimes();
+}
+
+function toggleLignePrime(id, coche) {
+    const ligne = ETAT_PRIMES.lignes.find(l => l.id === id);
+    if (ligne) ligne.actif = coche;
+    recalculerEtAfficherPrimes();
+}
+
+function toggleJoueurPrime(nomDirecteur, coche) {
+    ETAT_PRIMES.lignes.forEach(l => { if (l.directeur === nomDirecteur) l.actif = coche; });
+    recalculerEtAfficherPrimes();
+}
+
+function afficherTablePrimes() {
+    const exclureZeros = document.getElementById("exclureZeros").checked;
+    const base = document.getElementById("basePrimes").value;
+    const labelBase = base === "net" ? "Résultat NET" : "Résultat d'exploitation";
+
+    // --- Liste des joueurs (cases à cocher globales) ---
+    const nomsJoueurs = [...new Set(ETAT_PRIMES.lignes.map(l => l.directeur))].sort((a, b) => a.localeCompare(b, "fr"));
+    const listeJoueursDiv = document.getElementById("listeJoueursPrimes");
+    listeJoueursDiv.innerHTML = "";
+    nomsJoueurs.forEach(nom => {
+        const lignesJoueur = ETAT_PRIMES.lignes.filter(l => l.directeur === nom);
+        const touteActives = lignesJoueur.every(l => l.actif);
+        const chip = document.createElement("label");
+        chip.className = "joueur-chip" + (touteActives ? "" : " chip-inactif");
+        chip.innerHTML = `<input type="checkbox" ${touteActives ? "checked" : ""} onchange="toggleJoueurPrime('${nom.replace(/'/g, "\\'")}', this.checked)"> ${nom}`;
+        listeJoueursDiv.appendChild(chip);
+    });
+
+    // --- Tableau détaillé, groupé par filiale (TOUS les employés sont affichés, même à 0) ---
+    const tbody = document.getElementById("tbodyPrimesCalculees");
+    tbody.innerHTML = "";
+    const nomsFiliales = [...new Set(ETAT_PRIMES.lignes.map(l => l.filiale))].sort((a, b) => a.localeCompare(b, "fr"));
+
+    let sommeTotaleGenerale = 0n;
+    nomsFiliales.forEach(nomFiliale => {
+        const lignesFiliale = ETAT_PRIMES.lignes.filter(l => l.filiale === nomFiliale);
+
+        const donneesFiliale = ETAT_PRIMES.filiales.get(nomFiliale);
+        const valeurBase = donneesFiliale ? (base === "net" ? donneesFiliale.resultatNet : donneesFiliale.resultatExploitation) : 0n;
+        tbody.innerHTML += `<tr class="ligne-filiale-sep"><td colspan="6">🏢 ${nomFiliale} — ${labelBase} : ${formaterGrandNombre(valeurBase.toString())}</td></tr>`;
+
+        let sommeFiliale = 0n;
+        lignesFiliale.forEach(l => {
+            sommeFiliale += l.primeFinale;
+            tbody.innerHTML += `<tr class="${l.actif ? "" : "ligne-inactive"}">
+                <td class="col-check"><input type="checkbox" class="chk-ligne" ${l.actif ? "checked" : ""} onchange="toggleLignePrime(${l.id}, this.checked)"></td>
+                <td>${l.filiale}</td>
+                <td>${l.poste}</td>
+                <td>${l.directeur}</td>
+                <td>${formaterGrandNombre(l.primeMax.toString())}</td>
+                <td>${formaterGrandNombre(l.primeFinale.toString())}</td>
+            </tr>`;
+        });
+        sommeTotaleGenerale += sommeFiliale;
+        tbody.innerHTML += `<tr class="ligne-total"><td></td><td colspan="4">Total ${nomFiliale}</td><td>${formaterGrandNombre(sommeFiliale.toString())}</td></tr>`;
+    });
+    tbody.innerHTML += `<tr class="ligne-total"><td></td><td colspan="4">📊 Total général</td><td>${formaterGrandNombre(sommeTotaleGenerale.toString())}</td></tr>`;
+
+    // --- Sortie texte : {filiale}\t{directeur}\t{montant} (respecte "Masquer les valeurs à 0") ---
+    const lignesTexte = [];
+    ETAT_PRIMES.lignes.forEach(l => {
+        if (exclureZeros && l.primeFinale === 0n) return;
+        lignesTexte.push(`${l.filiale}\t${l.directeur}\t${l.primeFinale.toString()}`);
+    });
+    document.getElementById("sortiePrimesCalculees").value = lignesTexte.join("\n");
+}
+
+async function copierResultatPrimesCalculees() {
+    await navigator.clipboard.writeText(document.getElementById("sortiePrimesCalculees").value);
+    afficherStatus("📋 Copié !", "success");
+}
+
+function insererDansChampPrimes() {
+    const exclureZeros = document.getElementById("exclureZeros").checked;
+    const lignesSortie = ["Filiale\tPoste\tDirecteur\tPrime Max\tPrime"];
+    ETAT_PRIMES.lignes.forEach(l => {
+        if (exclureZeros && l.primeFinale === 0n) return;
+        lignesSortie.push(`${l.filiale}\t${l.poste}\t${l.directeur}\t${l.primeMax.toString()}\t${l.primeFinale.toString()}`);
+    });
+    document.getElementById("grosTexte").value = lignesSortie.join("\n");
+    switchTab('tab-primes');
 }
 
 async function envoyerEmbedsSurDiscord(url, embedsArray, nomRobot) {
