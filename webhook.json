@@ -93,6 +93,10 @@
         {
             "nom": "FDG",
             "url": "https://discordapp.com/api/webhooks/1527003315794083930/AwhVxt1Y8YoewPuJ74aplBZRoE3yIbX7ZVKyBkqvvDxlcDgJgZRM1buaTmNKUiBEG8rl"
+        },
+        {
+            "nom": "Classement",
+            "url": "https://discordapp.com/api/webhooks/1527003479921659975/B8JVH4Q0k-3zzl-OTapnJ5FxnBPFRbrMb0hEp59CMlsL0XL_1ouR79XrUeNko-BbCjRO"
         }
     ]
 }
