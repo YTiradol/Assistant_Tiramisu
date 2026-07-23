@@ -79,13 +79,11 @@
         {
             "nom": "classement capital total",
             "url": "https://discord.com/api/webhooks/1524716695430889492/TWf-r9Kipv5JK2H-Ict-07vJ2EjvbMhgKbZVGTlVFhlJS194405FQcXbUW1yB232imCq"
-        }, 
+        },
         {
             "nom": "Classement concours capital",
             "url": "https://discord.com/api/webhooks/1525564444594147420/1_oaPzj2xJsbBmh-qFV-NkRhgFOaRP_v2nut-Nsyf-PNdVZojWP0Xp-wal8ZRhLA6pW_"
         }
-    ],
-    "juliendlt": [
     ],
     "tiramisu": [
         {
@@ -99,6 +97,12 @@
         {
             "nom": "Classement",
             "url": "https://discordapp.com/api/webhooks/1527003479921659975/B8JVH4Q0k-3zzl-OTapnJ5FxnBPFRbrMb0hEp59CMlsL0XL_1ouR79XrUeNko-BbCjRO"
+        }
+    ],
+    "isabelle": [
+        {
+            "nom": "prime",
+            "url": "https://discordapp.com/api/webhooks/152"
         }
     ]
 }
