@@ -111,6 +111,10 @@
         {
             "nom": "classement evo AETHERIS",
             "url": "https://discord.com/api/webhooks/1536815516608368702/C7IPHo60pJ9WYqHOIagIsZs8xslVcOneY8malxnvHpbpZpwYZ1lDRk7U9PhGgHwmcNNK"
+        },
+        {
+            "nom": "classement total AETHERIS",
+            "url": "https://discord.com/api/webhooks/1536815870003646465/-WLj95GX692FcqiINYlN8JqqqlrTNdWxjc56sISKuEfrcpKHeacuCwQ3446A6vfIoZgW"
         }
     ],
     "tiramisu": [
