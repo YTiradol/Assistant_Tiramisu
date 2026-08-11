@@ -107,6 +107,10 @@
         {
             "nom": "prime AETHERIS",
             "url": "https://discord.com/api/webhooks/1536814984959369338/A3KLvZXbFDLbfGeuz78MjZjf0I8pILPeaREDAPY6dEZdl1P1RAxDltxNS-BvI4IgMAjR"
+        },
+        {
+            "nom": "classement evo AETHERIS",
+            "url": "https://discord.com/api/webhooks/1536815516608368702/C7IPHo60pJ9WYqHOIagIsZs8xslVcOneY8malxnvHpbpZpwYZ1lDRk7U9PhGgHwmcNNK"
         }
     ],
     "tiramisu": [
