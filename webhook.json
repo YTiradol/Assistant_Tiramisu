@@ -115,6 +115,10 @@
         {
             "nom": "classement total AETHERIS",
             "url": "https://discord.com/api/webhooks/1536815870003646465/-WLj95GX692FcqiINYlN8JqqqlrTNdWxjc56sISKuEfrcpKHeacuCwQ3446A6vfIoZgW"
+        },
+        {
+            "nom": "classement benefice aetheris",
+            "url": "https://discord.com/api/webhooks/1538492151825043456/pXF6krXYGH5Ns2q8OchC3XbWDLfxhrje5hTkxsqqCIS1ZuHU3BQNu9hoRGfGAjJeenTt"
         }
     ],
     "tiramisu": [
