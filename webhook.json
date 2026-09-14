@@ -140,5 +140,11 @@
             "nom": "prime",
             "url": "https://discordapp.com/api/webhooks/152"
         }
+    ],
+    "atchoum": [
+        {
+            "nom": "new compte",
+            "url": "https://discord.com/api/webhooks/kkk"
+        }
     ]
 }
