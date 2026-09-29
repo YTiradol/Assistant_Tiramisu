@@ -146,11 +146,5 @@
             "nom": "new compte",
             "url": "https://discord.com/api/webhooks/kkk"
         }
-    ],
-    "ella": [
-        {
-            "nom": "newaccount",
-            "url": "https://discord.com/api/webhooks/"
-        }
     ]
 }
